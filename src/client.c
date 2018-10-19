@@ -14,8 +14,6 @@
 
 
 //****************************************************************************************************************************************************
-
-
 int main(int argc, char* argv[]){
 	int status, s;
 	int len;
@@ -134,8 +132,6 @@ int main(int argc, char* argv[]){
 	memset(&dest, 0, sizeof(dest));
 
 	pN = atoi(pNum);
-
-	
 
 	status = getaddrinfo(ipAddr, pNum, &hints, &res);
 	if(status != 0){

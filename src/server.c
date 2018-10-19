@@ -8,16 +8,21 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
+#include <pthread.h>
 #include "helper.h"
+
+#define NUM_THREADS 10
  
 int main(int argc, char *argv[])
 {
 	int len;
 
-	//start with a guess that the header won't be larger than 255 bytes, will change later based on contents of header
+	//start with a guess that the header won't be larger than 255 bytes
 	int MAXRCVLEN = 255;
 	char headBuffer[MAXRCVLEN + 1]; //for \0
 	char ack[7];
+
+	pthread_t tids[NUM_THREADS];
   
 	struct sockaddr_in dest; // socket info about the machine connecting to us
 	struct sockaddr_in serv; // socket info about our server
@@ -80,10 +85,11 @@ int main(int argc, char *argv[])
 
 	}
   
-	while(consocket)
-	{
+	while(consocket) {
 		printf("Incoming connection from %s\n", inet_ntoa(dest.sin_addr));
-		
+
+
+		/*
 		// Receive data from the client, first chunk received is the "header"
 		// header format is "bufferSize numChunks"
 		len = recv(consocket, headBuffer, MAXRCVLEN, 0);
@@ -118,7 +124,7 @@ int main(int argc, char *argv[])
 			//Send data to client
 			send(consocket, ack, strlen(ack), 0);
 		}
-		//Continue listening for incoming connections
+		//Continue listening for incoming connections*/
 		fflush(stdout);
 		consocket = accept(mysocket, (struct sockaddr *)&dest, &socksize);
 	}
@@ -126,4 +132,8 @@ int main(int argc, char *argv[])
 	close(consocket);
 	close(mysocket);
 	return EXIT_SUCCESS;
+}
+
+void * download(void * arg) {
+
 }
