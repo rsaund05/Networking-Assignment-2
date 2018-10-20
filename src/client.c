@@ -16,7 +16,7 @@
 //****************************************************************************************************************************************************
 int main(int argc, char* argv[]){
 	int status, s;
-	int len;
+	long len;
 	char buff[255];
 	char* inBuff;
 	char* fname;
@@ -180,7 +180,8 @@ int main(int argc, char* argv[]){
 
 	printf("Number of blocks: %d\n", numBlocks);
 	//generating and sending header
-	sprintf(header, "%d %d", blockSize, numBlocks);
+
+	sprintf(header, "%ld %d %d %s", len, blockSize, numBlocks, fname); 
 	//printf("HEADER: %s\n", header);
 
 	if(send(clientSocket, header, strlen(header), 0) == -1){
