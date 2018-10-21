@@ -84,7 +84,6 @@ int main(int argc, char *argv[]) {
 	
 	// Create a socket to communicate with the client that just connected
 	long consocket = accept(mysocket, (struct sockaddr *)&dest, &socksize);
-	printf("consocket: %d\n", consocket);
 
 	if (consocket == -1) {
 		fprintf(stderr, "%s\n", strerror(errno));
@@ -139,7 +138,6 @@ void * download(void * arg) {
 	if (len == -1) {
 		fprintf(stderr, "%s\n", strerror(errno));
 	}
-	printf("headBuff: %s\nlen: %d\nconsocket: %d\n", headBuffer, len, consocket1);
 
 	//Send data to client
 	send(consocket1, ack, strlen(ack), 0);
@@ -191,10 +189,13 @@ void * download(void * arg) {
 		send(consocket1, ack, strlen(ack), 0);
 	}
 
-	//Message * toDel = 
+	/*Message deletedMsg;
+
 
 	//file completed downloading, remove from current downloads list
-	//GetMessage
+	if (!GetMessage(args->q, filename, diskFilename, &deletedMsg)) {
+		fprintf(stderr, "Error");
+	}*/
 
 	//close consocket
 	close(consocket1);

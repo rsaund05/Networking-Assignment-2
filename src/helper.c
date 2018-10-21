@@ -51,8 +51,8 @@ void sendMessage(MessageQueue* q, char* filename, char* diskFilename, int sender
     fprintf(stderr, "Worker %d enqueues the message, signals cond variable, unlocks mutex\n", sender);
 }
 
-//"Receive" a message - remove it from the queue
-int getMessage(MessageQueue* q, Message* msg_out)
+//"Receive" a message by string search - remove it from the queue
+int getMessage(MessageQueue* q, char* filename, char* diskFilename, Message* msg_out)
 {
     int success = 0;
     

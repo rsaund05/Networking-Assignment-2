@@ -40,4 +40,4 @@ typedef struct {
 int isInt(char* str);
 MessageQueue* createMessageQueue();
 void sendMessage(MessageQueue* q, char* filename, char* diskFilename, int sender);
-int getMessage(MessageQueue* q, Message* msg_out);
+int getMessage(MessageQueue* q, char* filename, char* diskFilename, Message* msg_out);
