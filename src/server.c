@@ -152,8 +152,12 @@ void * download(void * arg) {
 	char* numChunksStr = strtok(NULL, " ");
 	char* filename = strtok(NULL, "\0");
 
+	char diskFilename[strlen(filename) + 6];
+	sprintf(diskFilename, "files/%s", filename);
+
+
 	//header recv'd, download started, add to queue
-	sendMessage(args->q, filename, workerId);
+	sendMessage(args->q, filename, diskFilename, workerId);
 
 	MAXRCVLEN = atol(buffSizeStr);
 	long numChunks = atol(numChunksStr);
@@ -165,19 +169,22 @@ void * download(void * arg) {
 		return NULL;
 	}
 
-	FILE* fp = fopen(filename, "w");
+	FILE* fp = fopen(diskFilename, "w");
+	if(!fp) {
+		fprintf(stderr, "%s\n", strerror(errno));
+	}
 	
 	//begin to receive and print chunks to file defined by numChunks
 	for(int i = 0; i < numChunks; i++) {
 		len = recv(consocket1, buffer, MAXRCVLEN, 0);
 
 		if (len == -1) {
-			fprintf(stderr, "ERROR: %s\n", buffer);
+			fprintf(stderr, "ERROR: %s\n", strerror(errno));
 		}
 
 		buffer[len] = '\0';
 		//print buffer data to file
-		printf("buffer: %s", buffer);
+		printf("%s", buffer);
 		fprintf(fp, "%s", buffer);
 
 		//Send data to client
@@ -191,6 +198,9 @@ void * download(void * arg) {
 
 	//close consocket
 	close(consocket1);
+	fclose(fp);
+
+	printf("\nWorker thread done\n");
 
 	return NULL;
 }

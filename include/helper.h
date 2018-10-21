@@ -16,6 +16,7 @@
 
 typedef struct {
     char* filename;
+    char* diskFilename;
     int sender;
 } Message;
 
@@ -38,5 +39,5 @@ typedef struct {
 
 int isInt(char* str);
 MessageQueue* createMessageQueue();
-void sendMessage(MessageQueue* q, char* filename, int sender);
+void sendMessage(MessageQueue* q, char* filename, char* diskFilename, int sender);
 int getMessage(MessageQueue* q, Message* msg_out);
