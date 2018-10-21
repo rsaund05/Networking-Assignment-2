@@ -91,13 +91,14 @@ int main(int argc, char *argv[]) {
   
 	while(consocket) {
 		printf("Incoming connection from %s\n", inet_ntoa(dest.sin_addr));
+		int consocket1 = consocket;
 
 		ThreadArgs* args = malloc(sizeof(ThreadArgs));
-		args->consocket = consocket;
+		args->consocket = consocket1;
 		args->q = q;
-		args->workerId = currThread;
+		args->workerId = currThread++;
 
-		pthread_create(&tid[currThread++], NULL, download, &args);
+		pthread_create(&tid[currThread], NULL, download, &args);
 
 		//keep listening
 		consocket = accept(mysocket, (struct sockaddr *)&dest, &socksize);
@@ -131,6 +132,10 @@ void * download(void * arg) {
 	// Receive data from the client, first chunk received is the "header"
 	// header format is "len buffSize numBlocks fName"
 	int len = recv(consocket, headBuffer, MAXRCVLEN, 0);
+	if (len == -1) {
+		fprintf(stderr, "%s\n", strerror(errno));
+	}
+	printf("headBuff: %s\nlen: %d\n", headBuffer, len);
 
 	//Send data to client
 	send(consocket, ack, strlen(ack), 0);
@@ -146,7 +151,7 @@ void * download(void * arg) {
 	//header recv'd, download started, add to queue
 	sendMessage(((ThreadArgs*)arg)->q, filename, workerId);
 
-	int MAXRCVLEN = atoi(buffSizeStr);
+	MAXRCVLEN = atoi(buffSizeStr);
 	int numChunks = atoi(numChunksStr);
 
 	char buffer[MAXRCVLEN + 1]; // +1 so we can add null terminator
@@ -176,7 +181,7 @@ void * download(void * arg) {
 	//GetMessage
 
 	//close consocket
-	close(consocket);
+	//close(consocket);
 
 	return NULL;
 }

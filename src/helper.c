@@ -31,7 +31,7 @@ void sendMessage(MessageQueue* q, char* filename, int sender)
 {
     MessageNode* node = (MessageNode*)malloc(sizeof(MessageNode));
     node->msg.sender = sender;
-    node->msg.filename = malloc(sizeof(char * (strlen(filename) + 1)));
+	node->msg.filename = malloc(sizeof(char) * (strlen(filename) + 1));
     strcpy(node->msg.filename, filename);
     node->next = NULL;
 
