@@ -27,11 +27,12 @@ MessageQueue* createMessageQueue()
 }
 
 //"Send" a message - append it onto the queue
-void sendMessage(MessageQueue* q, int sender, int value)
+void sendMessage(MessageQueue* q, char* filename, int sender)
 {
     MessageNode* node = (MessageNode*)malloc(sizeof(MessageNode));
     node->msg.sender = sender;
-    node->msg.value = value;
+    node->msg.filename = malloc(sizeof(char * (strlen(filename) + 1)));
+    strcpy(node->msg.filename, filename);
     node->next = NULL;
 
     // critical section
@@ -47,7 +48,6 @@ void sendMessage(MessageQueue* q, int sender, int value)
     pthread_mutex_unlock(&q->mutex);
     fprintf(stderr, "Worker %d enqueues the message, signals cond variable, unlocks mutex, and goes to sleep\n", sender);
     sleep(2);
-
 }
 
 //"Receive" a message - remove it from the queue

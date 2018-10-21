@@ -12,15 +12,16 @@
 #include "helper.h"
 
 #define NUM_THREADS 10
- 
-int main(int argc, char *argv[])
-{
-	int len;
 
-	//start with a guess that the header won't be larger than 255 bytes
-	int MAXRCVLEN = 255;
-	char headBuffer[MAXRCVLEN + 1]; //for \0
-	char ack[7];
+//Each thread needs multiple arguments, so we create a dedicated struct
+typedef struct {
+    int workerId;
+    MessageQueue* q;
+    int consocket;
+} ThreadArgs;
+ 
+int main(int argc, char *argv[]) {
+	int currThread = 0;
 
 	pthread_t tids[NUM_THREADS];
   
@@ -28,6 +29,8 @@ int main(int argc, char *argv[])
 	struct sockaddr_in serv; // socket info about our server
 	int mysocket;            // socket used to listen for incoming connections
 	socklen_t socksize = sizeof(struct sockaddr_in);
+
+	MessageQueue * q = createMessageQueue();
 
 	//check number of args
 	if (argc < 2) {
@@ -88,44 +91,14 @@ int main(int argc, char *argv[])
 	while(consocket) {
 		printf("Incoming connection from %s\n", inet_ntoa(dest.sin_addr));
 
+		ThreadArgs* args = malloc(sizeof(ThreadArgs));
+		args->consocket = consocket;
+		args->q = q;
+		args->workerId = currThread;
 
-		/*
-		// Receive data from the client, first chunk received is the "header"
-		// header format is "bufferSize numChunks"
-		len = recv(consocket, headBuffer, MAXRCVLEN, 0);
+		pthread_create(&tid[currThread++], NULL, download, &args);
 
-		//Send data to client
-		send(consocket, ack, strlen(ack), 0);
-		
-		headBuffer[len] = '\0';
-
-		//tokenize header by spaces
-		char* buffSizeStr = strtok(headBuffer, " ");
-		char* numChunksStr = strtok(NULL, "\0");
-
-		int MAXRCVLEN = atoi(buffSizeStr);
-		int numChunks = atoi(numChunksStr);
-
-		char buffer[MAXRCVLEN + 1]; // +1 so we can add null terminator
-
-		if (MAXRCVLEN == 0 || numChunks == 0) {
-			fprintf(stderr, "%s\n", "Header error");
-			return 0;
-		}
-		
-		//begin to receive and print chunks defined by numChunks
-		for(int i = 0; i < numChunks; i++) {
-			len = recv(consocket, buffer, MAXRCVLEN, 0);
-
-			buffer[len] = '\0';
-			//print buffer data to screen
-			printf("%s", buffer);
-
-			//Send data to client
-			send(consocket, ack, strlen(ack), 0);
-		}
-		//Continue listening for incoming connections*/
-		fflush(stdout);
+		//keep listening
 		consocket = accept(mysocket, (struct sockaddr *)&dest, &socksize);
 	}
 
@@ -136,4 +109,58 @@ int main(int argc, char *argv[])
 
 void * download(void * arg) {
 
+	//start with a guess that the header won't be larger than 255 bytes
+	int MAXRCVLEN = 255;
+	char headBuffer[MAXRCVLEN + 1]; //for \0
+	char ack[7];
+
+	// Receive data from the client, first chunk received is the "header"
+	// header format is "len buffSize numBlocks fName"
+	int len = recv(consocket, headBuffer, MAXRCVLEN, 0);
+
+	//Send data to client
+	send(consocket, ack, strlen(ack), 0);
+	
+	headBuffer[len] = '\0';
+
+	//tokenize header by space
+	char* lenStr = strtok(headBuffer, " ");
+	char* buffSizeStr = strtok(NULL, " ");
+	char* numChunksStr = strtok(NULL, " ");
+	char* fileName = strtok(NULL, "\0");
+
+	//header recv'd, download started, add to queue
+	sendMessage((ThreadArgs*)args->q, (ThreadArgs*)args->filename, );
+
+	int MAXRCVLEN = atoi(buffSizeStr);
+	int numChunks = atoi(numChunksStr);
+
+	char buffer[MAXRCVLEN + 1]; // +1 so we can add null terminator
+
+	if (MAXRCVLEN == 0 || numChunks == 0) {
+		fprintf(stderr, "%s\n", "Header error");
+		return NULL;
+	}
+
+	FILE* fp = fopen(fileName, "w");
+	
+	//begin to receive and print chunks to file defined by numChunks
+	for(int i = 0; i < numChunks; i++) {
+		len = recv(consocket, buffer, MAXRCVLEN, 0);
+
+		buffer[len] = '\0';
+		//print buffer data to file
+		fprintf(fp, "%s", buffer);
+
+		//Send data to client
+		send(consocket, ack, strlen(ack), 0);
+	}
+
+	//file completed downloading, remove from current downloads list
+	GetMessage
+
+	//close consocket
+	close(consocket);
+
+	return NULL;
 }

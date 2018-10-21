@@ -15,14 +15,9 @@
 #endif
 
 typedef struct {
+    char* filename;
     int sender;
-    int value;
 } Message;
-
-typedef struct thread_node {
-	pthread_t tid;
-	struct contread * next;
-}conthread;
 
 //Message node
 typedef struct message_node {
@@ -43,5 +38,5 @@ typedef struct {
 
 int isInt(char* str);
 MessageQueue* createMessageQueue();
-void sendMessage(MessageQueue* q, int sender, int value);
+void sendMessage(MessageQueue* q, struct sockaddr_in * dest, struct sockaddr_in* serv);
 int getMessage(MessageQueue* q, Message* msg_out);
