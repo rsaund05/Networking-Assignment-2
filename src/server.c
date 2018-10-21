@@ -19,11 +19,13 @@ typedef struct {
     MessageQueue* q;
     int consocket;
 } ThreadArgs;
+
+void* download(void* arg);
  
 int main(int argc, char *argv[]) {
 	int currThread = 0;
 
-	pthread_t tids[NUM_THREADS];
+	pthread_t tid[NUM_THREADS];
   
 	struct sockaddr_in dest; // socket info about the machine connecting to us
 	struct sockaddr_in serv; // socket info about our server
@@ -48,7 +50,6 @@ int main(int argc, char *argv[]) {
 	int PORTNUM = atoi(argv[1]);
 
 	memset(&serv, 0, sizeof(serv));           // zero the struct before filling the fields
-	strcpy(ack, "200");
 	
 	serv.sin_family = AF_INET;                // Use the IPv4 address family
 	serv.sin_addr.s_addr = htonl(INADDR_ANY); // Set our address to any interface 
@@ -107,12 +108,25 @@ int main(int argc, char *argv[]) {
 	return EXIT_SUCCESS;
 }
 
+/* for reference
+typedef struct {
+    int workerId;
+    MessageQueue* q;
+    int consocket;
+} ThreadArgs;
+*/
+
 void * download(void * arg) {
 
 	//start with a guess that the header won't be larger than 255 bytes
 	int MAXRCVLEN = 255;
 	char headBuffer[MAXRCVLEN + 1]; //for \0
 	char ack[7];
+
+	strcpy(ack, "200");
+
+	int consocket = ((ThreadArgs*)arg)->consocket;
+	int workerId = ((ThreadArgs*)arg)->workerId;
 
 	// Receive data from the client, first chunk received is the "header"
 	// header format is "len buffSize numBlocks fName"
@@ -127,10 +141,10 @@ void * download(void * arg) {
 	char* lenStr = strtok(headBuffer, " ");
 	char* buffSizeStr = strtok(NULL, " ");
 	char* numChunksStr = strtok(NULL, " ");
-	char* fileName = strtok(NULL, "\0");
+	char* filename = strtok(NULL, "\0");
 
 	//header recv'd, download started, add to queue
-	sendMessage((ThreadArgs*)args->q, (ThreadArgs*)args->filename, );
+	sendMessage(((ThreadArgs*)arg)->q, filename, workerId);
 
 	int MAXRCVLEN = atoi(buffSizeStr);
 	int numChunks = atoi(numChunksStr);
@@ -142,7 +156,7 @@ void * download(void * arg) {
 		return NULL;
 	}
 
-	FILE* fp = fopen(fileName, "w");
+	FILE* fp = fopen(filename, "w");
 	
 	//begin to receive and print chunks to file defined by numChunks
 	for(int i = 0; i < numChunks; i++) {
@@ -156,8 +170,10 @@ void * download(void * arg) {
 		send(consocket, ack, strlen(ack), 0);
 	}
 
+	//Message * toDel = 
+
 	//file completed downloading, remove from current downloads list
-	GetMessage
+	//GetMessage
 
 	//close consocket
 	close(consocket);

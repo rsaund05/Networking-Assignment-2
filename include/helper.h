@@ -38,5 +38,5 @@ typedef struct {
 
 int isInt(char* str);
 MessageQueue* createMessageQueue();
-void sendMessage(MessageQueue* q, struct sockaddr_in * dest, struct sockaddr_in* serv);
+void sendMessage(MessageQueue* q, char* filename, int sender);
 int getMessage(MessageQueue* q, Message* msg_out);

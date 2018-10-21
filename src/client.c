@@ -221,8 +221,6 @@ int main(int argc, char* argv[]){
 	printf("\nTime to send file (s): %.2lf\n", t_diff);
 	printf("File transfer rate (Bytes/sec): %.2lf\n\n", (len/t_diff));
 
-
-
 	fclose(fp);
 	free(fname);
 	free(ipAddr);
