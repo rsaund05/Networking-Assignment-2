@@ -17,7 +17,7 @@
 typedef struct {
     int workerId;
     MessageQueue* q;
-    int consocket;
+    long consocket;
 } ThreadArgs;
 
 void* download(void* arg);
@@ -26,6 +26,7 @@ int main(int argc, char *argv[]) {
 	int currThread = 0;
 
 	pthread_t tid[NUM_THREADS];
+	ThreadArgs * args[NUM_THREADS];
   
 	struct sockaddr_in dest; // socket info about the machine connecting to us
 	struct sockaddr_in serv; // socket info about our server
@@ -82,23 +83,24 @@ int main(int argc, char *argv[]) {
 	}
 	
 	// Create a socket to communicate with the client that just connected
-	int consocket = accept(mysocket, (struct sockaddr *)&dest, &socksize);
+	long consocket = accept(mysocket, (struct sockaddr *)&dest, &socksize);
+	printf("consocket: %d\n", consocket);
 
 	if (consocket == -1) {
 		fprintf(stderr, "%s\n", strerror(errno));
-
 	}
   
 	while(consocket) {
 		printf("Incoming connection from %s\n", inet_ntoa(dest.sin_addr));
-		int consocket1 = consocket;
 
-		ThreadArgs* args = malloc(sizeof(ThreadArgs));
-		args->consocket = consocket1;
-		args->q = q;
-		args->workerId = currThread++;
 
-		pthread_create(&tid[currThread], NULL, download, &args);
+		args[currThread] = malloc(sizeof(ThreadArgs));
+		args[currThread]->consocket = consocket;
+		args[currThread]->q = q;
+		args[currThread]->workerId = currThread;
+
+		pthread_create(&tid[currThread], NULL, download, args[currThread]);
+		currThread++;
 
 		//keep listening
 		consocket = accept(mysocket, (struct sockaddr *)&dest, &socksize);
@@ -120,25 +122,27 @@ typedef struct {
 void * download(void * arg) {
 
 	//start with a guess that the header won't be larger than 255 bytes
-	int MAXRCVLEN = 255;
+	long MAXRCVLEN = 255;
 	char headBuffer[MAXRCVLEN + 1]; //for \0
 	char ack[7];
 
 	strcpy(ack, "200");
 
-	int consocket = ((ThreadArgs*)arg)->consocket;
-	int workerId = ((ThreadArgs*)arg)->workerId;
+	ThreadArgs* args = (ThreadArgs*)arg;
+
+	int consocket1 = args->consocket;
+	int workerId = args->workerId;
 
 	// Receive data from the client, first chunk received is the "header"
 	// header format is "len buffSize numBlocks fName"
-	int len = recv(consocket, headBuffer, MAXRCVLEN, 0);
+	int len = recv(consocket1, headBuffer, MAXRCVLEN, 0);
 	if (len == -1) {
 		fprintf(stderr, "%s\n", strerror(errno));
 	}
-	printf("headBuff: %s\nlen: %d\n", headBuffer, len);
+	printf("headBuff: %s\nlen: %d\nconsocket: %d\n", headBuffer, len, consocket1);
 
 	//Send data to client
-	send(consocket, ack, strlen(ack), 0);
+	send(consocket1, ack, strlen(ack), 0);
 	
 	headBuffer[len] = '\0';
 
@@ -149,10 +153,10 @@ void * download(void * arg) {
 	char* filename = strtok(NULL, "\0");
 
 	//header recv'd, download started, add to queue
-	sendMessage(((ThreadArgs*)arg)->q, filename, workerId);
+	sendMessage(args->q, filename, workerId);
 
-	MAXRCVLEN = atoi(buffSizeStr);
-	int numChunks = atoi(numChunksStr);
+	MAXRCVLEN = atol(buffSizeStr);
+	long numChunks = atol(numChunksStr);
 
 	char buffer[MAXRCVLEN + 1]; // +1 so we can add null terminator
 
@@ -165,14 +169,19 @@ void * download(void * arg) {
 	
 	//begin to receive and print chunks to file defined by numChunks
 	for(int i = 0; i < numChunks; i++) {
-		len = recv(consocket, buffer, MAXRCVLEN, 0);
+		len = recv(consocket1, buffer, MAXRCVLEN, 0);
+
+		if (len == -1) {
+			fprintf(stderr, "ERROR: %s\n", buffer);
+		}
 
 		buffer[len] = '\0';
 		//print buffer data to file
+		printf("buffer: %s", buffer);
 		fprintf(fp, "%s", buffer);
 
 		//Send data to client
-		send(consocket, ack, strlen(ack), 0);
+		send(consocket1, ack, strlen(ack), 0);
 	}
 
 	//Message * toDel = 
@@ -181,7 +190,7 @@ void * download(void * arg) {
 	//GetMessage
 
 	//close consocket
-	//close(consocket);
+	close(consocket1);
 
 	return NULL;
 }
