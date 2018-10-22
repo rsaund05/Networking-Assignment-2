@@ -14,7 +14,7 @@ clean:
 
 spawn:
 	bin/client 127.0.0.1:12079 wonderland.txt &
-	bin/client 127.0.0.1:12079 wonderland.txt &
-	bin/client 127.0.0.1:12079 wonderland.txt &
-	bin/client 127.0.0.1:12079 wonderland.txt &
-	bin/client 127.0.0.1:12079 wonderland.txt
+	bin/client 127.0.0.1:12079 shake.txt &
+	bin/client 127.0.0.1:12079 lorem.txt &
+	bin/client 127.0.0.1:12079 shake.txt &
+	bin/client 127.0.0.1:12079 lorem.txt
