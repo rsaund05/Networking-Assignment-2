@@ -21,8 +21,11 @@ typedef struct {
 } ThreadArgs;
 
 void* download(void* arg);
+void* printQueue(void* args);
  
 int main(int argc, char *argv[]) {
+	pthread_t uiThread;
+	
 	int currThread = 0;
 
 	pthread_t tid[NUM_THREADS];
@@ -34,6 +37,7 @@ int main(int argc, char *argv[]) {
 	socklen_t socksize = sizeof(struct sockaddr_in);
 
 	MessageQueue * q = createMessageQueue();
+	pthread_create(&uiThread, NULL, printQueue, q);
 
 	//check number of args
 	if (argc < 2) {
@@ -100,7 +104,6 @@ int main(int argc, char *argv[]) {
 
 		pthread_create(&tid[currThread], NULL, download, args[currThread]);
 		currThread++;
-
 		//keep listening
 		consocket = accept(mysocket, (struct sockaddr *)&dest, &socksize);
 	}
@@ -182,7 +185,7 @@ void * download(void * arg) {
 
 		buffer[len] = '\0';
 		//print buffer data to file
-		printf("%s", buffer);
+		//printf("%s", buffer);
 		fprintf(fp, "%s", buffer);
 
 		//Send data to client
@@ -213,20 +216,30 @@ void * download(void * arg) {
 }
 
 void* printQueue(void* args){
+	MessageQueue* q;
+	q = ((MessageQueue*)args);
+
 	char select;
-	while(scanf != 'v'){
+	while(1){
 		printf("(V)iew current downloads, or (Q)uit:");
 		scanf("%c", &select);
+		getchar();
 		if(select == 'v' || select == 'V'){
-
+			printf("List of currently active downloads\n***************************************\n");
+			pthread_mutex_lock(&q->mutex);
+			MessageNode* head = q->head;
+			while(head != NULL){
+				printf("-%s\n", head->msg.filename);
+				head = head->next;
+			}
+			pthread_mutex_unlock(&q->mutex);
 		} else if(select == 'q' || select == 'Q'){
 			printf("Hard shut down\n");
+			exit(0);
 			
-			return NULL;
-		} else {
-			printf("Error: Invalid input, press 'v' or 'q'\n");
 		}
-	}
+		}
 	
+	return NULL;
 
 }

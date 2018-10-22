@@ -105,7 +105,7 @@ int main(int argc, char* argv[]){
 	//Rewind file pointer to beginning of file
 	rewind(fp);
 
-	printf("\nLength of file: %d bytes\n", len);
+	printf("\nLength of file: %ld bytes\n", len);
 
 	//If the user has inputted a specific buffer size
 	if(argv[3] != NULL){
