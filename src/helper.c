@@ -79,6 +79,7 @@ int getMessage(MessageQueue* q, char* filename, char* diskFilename, Message* msg
         	q->tail = NULL;         // last node removed
     	}
     	free(oldHead);
+    	pthread_mutex_unlock(&q->mutex);
    		return 1;
 	}
 

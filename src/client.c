@@ -206,6 +206,7 @@ int main(int argc, char* argv[]){
 		send(clientSocket, msg, strlen(msg), 0);
 		receiving = recv(clientSocket, recvMsg, 5, 0);
 		lenPtr = strlen(ptr2);
+		sleep(1);
 	}
 	memset(msg, '\0', blockSize);
 	strcpy(msg, ptr2);
