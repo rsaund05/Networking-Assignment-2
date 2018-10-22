@@ -87,6 +87,7 @@ int getMessage(MessageQueue* q, char* filename, char* diskFilename, Message* msg
 	//case 2: the requested node is somewhere in the middle or at the end
 	if(!q->head || !q->head->next) {
 		//there was only 1 element and it wasn't the one we wanted
+		printf("ruh roh\n");
 		pthread_mutex_unlock(&q->mutex);
 		return 0;
 	}
@@ -96,9 +97,10 @@ int getMessage(MessageQueue* q, char* filename, char* diskFilename, Message* msg
 	MessageNode* slow = q->head;
 
 	//until we get to the end of the list
-	while(!fast) {
+	while(fast) {
 		//this is the node we want
-		if(strcmp(q->head->msg.filename, filename) == 0 && strcmp(q->head->msg.diskFilename, diskFilename) == 0) {
+
+		if(strcmp(fast->msg.filename, filename) == 0 && strcmp(fast->msg.diskFilename, diskFilename) == 0) {
 			*msg_out = fast->msg;
 			slow->next = slow->next->next;
 			free(fast);
@@ -106,7 +108,7 @@ int getMessage(MessageQueue* q, char* filename, char* diskFilename, Message* msg
 			return 1;
 		}
 		//not the node we want, keep walking
-		else{
+		else {
 			slow = fast;
 			fast = fast->next;
 		}
