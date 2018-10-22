@@ -195,7 +195,7 @@ void * download(void * arg) {
 
 	//file completed downloading, remove from current downloads list
 	if (!getMessage(args->q, filename, diskFilename, &deletedMsg)) {
-		fprintf(stderr, "Error");
+		fprintf(stderr, "\n\n\n\nError\n\n\n\n");
 	} else {
 		printf("Worker removed message: Filename \"%s\" Disk Filename: \"%s\"\n", deletedMsg.filename, deletedMsg.diskFilename);
 	}
