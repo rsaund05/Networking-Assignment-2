@@ -100,23 +100,6 @@ int getMessage(MessageQueue* q, char* filename, char* diskFilename, Message* msg
 	while(fast) {
 		//this is the node we want
 
-		if (!filename) {
-			printf("\nFilename NULL!\n");
-			return 0;
-		}
-		if (!diskFilename) {
-			printf("\ndiskFilename NULL!\n");
-			return 0;
-		}
-		if (!fast->msg.filename) {
-			printf("\nfast filename NULL!\n");
-			return 0;
-		}
-		if (!fast->msg.diskFilename) {
-			printf("\nfast diskFilename is NULL!\n");
-			return 0;
-		}
-
 		if(strcmp(fast->msg.filename, filename) == 0 && strcmp(fast->msg.diskFilename, diskFilename) == 0) {
 			*msg_out = fast->msg;
 			slow->next = slow->next->next;
