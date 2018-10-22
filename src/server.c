@@ -211,3 +211,22 @@ void * download(void * arg) {
 
 	return NULL;
 }
+
+void* printQueue(void* args){
+	char select;
+	while(scanf != 'v'){
+		printf("(V)iew current downloads, or (Q)uit:");
+		scanf("%c", &select);
+		if(select == 'v' || select == 'V'){
+
+		} else if(select == 'q' || select == 'Q'){
+			printf("Hard shut down\n");
+			
+			return NULL;
+		} else {
+			printf("Error: Invalid input, press 'v' or 'q'\n");
+		}
+	}
+	
+
+}
