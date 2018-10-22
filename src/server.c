@@ -187,6 +187,7 @@ void * download(void * arg) {
 
 		//Send data to client
 		send(consocket1, ack, strlen(ack), 0);
+		sleep(1);
 	}
 
 	/*Message deletedMsg;
