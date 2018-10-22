@@ -191,12 +191,14 @@ void * download(void * arg) {
 
 	Message deletedMsg;
 
+	fprintf(stderr, "\n\nfilename: %s\ndisk filename: %s\n\n", filename, diskFilename);
+
 	//file completed downloading, remove from current downloads list
 	if (!getMessage(args->q, filename, diskFilename, &deletedMsg)) {
 		fprintf(stderr, "Error");
+	} else {
+		printf("Worker removed message: Filename \"%s\" Disk Filename: \"%s\"\n", deletedMsg.filename, deletedMsg.diskFilename);
 	}
-
-	printf("Worker removed message: Filename \"%s\" Disk Filename: \"%s\"\n", deletedMsg.filename, deletedMsg.diskFilename);
 
 	if(deletedMsg.filename) free(deletedMsg.filename);
 	if(deletedMsg.diskFilename) free(deletedMsg.diskFilename);
