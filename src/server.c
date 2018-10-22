@@ -190,13 +190,17 @@ void * download(void * arg) {
 		sleep(1);
 	}
 
-	/*Message deletedMsg;
-
+	Message deletedMsg;
 
 	//file completed downloading, remove from current downloads list
-	if (!GetMessage(args->q, filename, diskFilename, &deletedMsg)) {
+	if (!getMessage(args->q, filename, diskFilename, &deletedMsg)) {
 		fprintf(stderr, "Error");
-	}*/
+	}
+
+	printf("Worker removed message: Filename \"%s\" Disk Filename: \"%s\"\n", deletedMsg.filename, deletedMsg.diskFilename);
+
+	if(deletedMsg.filename) free(deletedMsg.filename);
+	if(deletedMsg.diskFilename) free(deletedMsg.diskFilename);
 
 	//close consocket
 	close(consocket1);
