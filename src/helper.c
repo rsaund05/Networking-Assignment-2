@@ -68,15 +68,46 @@ int getMessage(MessageQueue* q, char* filename, char* diskFilename, Message* msg
     }
     
     //By the time we get here, we know q->head is not null, so it's all good
-    MessageNode* oldHead = q->head;
-    *msg_out = oldHead->msg;    // copy out the message
-    q->head = oldHead->next;
-    if (q->head == NULL) {
-        q->tail = NULL;         // last node removed
-    }
-    free(oldHead);
-    success = 1;
-    
+
+
+    //case 1: the head is the item we need to remove
+    if (strcmp(q->head->msg.filename, filename) == 0 && strcmp(q->head->msg.diskFilename, diskFilename) == 0) {
+    	MessageNode* oldHead = q->head;
+    	*msg_out = oldHead->msg;    // copy out the message
+    	q->head = oldHead->next;
+    	if (q->head == NULL) {
+        	q->tail = NULL;         // last node removed
+    	}
+    	free(oldHead);
+   		return 1;
+	}
+
+
+	//case 2: the requested node is somewhere in the middle or at the end
+	if(!q->head || !q->head->next) {
+		//there was only 1 element and it wasn't the one we wanted
+		return 0;
+	}
+
+	//using fast/slow method for deleting arbitrarily from a list of len > 1
+	MessageNode* fast = q->head->next;
+	MessageNode* slow = q->head;
+
+	//until we get to the end of the list
+	while(!fast) {
+		//this is the node we want
+		if((strcmp(fast->msg.filename, filename) == 0) && (strcmp(fast->msg.diskFilename, diskFilename) == 0)) {
+			*msg_out = fast->msg;
+			slow->next = slow->next->next;
+			free(fast);
+			success = 1;
+		}
+		//not the node we want, keep walking
+		else{
+			slow = fast;
+			fast = fast->next;
+		}
+	}
     //Release lock
     pthread_mutex_unlock(&q->mutex);
 
