@@ -200,7 +200,7 @@ void * download(void * arg) {
 	if (!getMessage(args->q, filename, diskFilename, &deletedMsg)) {
 		fprintf(stderr, "\n\n\n\nError\n\n\n\n");
 	} else {
-		printf("Worker removed message: Filename \"%s\" Disk Filename: \"%s\"\n", deletedMsg.filename, deletedMsg.diskFilename);
+		//printf("Worker removed message: Filename \"%s\" Disk Filename: \"%s\"\n", deletedMsg.filename, deletedMsg.diskFilename);
 	}
 
 	if(deletedMsg.filename) free(deletedMsg.filename);
@@ -210,7 +210,7 @@ void * download(void * arg) {
 	close(consocket1);
 	fclose(fp);
 
-	printf("\nWorker thread done\n");
+	//printf("\nWorker thread done\n");
 
 	return NULL;
 }

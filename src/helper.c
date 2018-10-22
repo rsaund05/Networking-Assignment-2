@@ -48,7 +48,7 @@ void sendMessage(MessageQueue* q, char* filename, char* diskFilename, int sender
     //Signal the consumer thread woiting on this condition variable
     pthread_cond_signal(&q->cond);
     pthread_mutex_unlock(&q->mutex);
-    fprintf(stderr, "Worker %d enqueues the message, signals cond variable, unlocks mutex\n", sender);
+    //fprintf(stderr, "Worker %d enqueues the message, signals cond variable, unlocks mutex\n", sender);
 }
 
 //"Receive" a message by string search - remove it from the queue
